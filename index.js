@@ -13,11 +13,13 @@ io.on("connection", function(socket) { //при подключении ново�
             "x": 0,
             "y": 0
         },
+        "x": 400,
+        "y": 40,
         "animation": 'left'
     }; //генерирует параметры нового юнита
     io.sockets.emit('add_player', JSON.stringify({
         "id": socket.id,
-        "player": players[socket.id]
+        "player": players[socket.id],
     })); //отправляет на клиент данные нового юнита
     socket.emit('add_players', JSON.stringify(players));// отправляет на клиент данные нового юнита,
     // если игроков более одного
@@ -25,14 +27,12 @@ io.on("connection", function(socket) { //при подключении ново�
     socket.on('player_move', function(data) {
         data = JSON.parse(data);
         data.velocity = {};
-        data.velocity.x = 0;
-        data.velocity.y = 0;
         data.animation = 'left';
 
         switch (data.character) {
             case "W":
-                players[data.id].velocity.y = -250;
-                data.velocity.y = -250;
+                players[data.id].velocity.y = -550;
+                data.velocity.y = -550;
                 break;
             case "A":
                 players[data.id].velocity.x = -150;
@@ -41,7 +41,7 @@ io.on("connection", function(socket) { //при подключении ново�
                 data.animation = 'left';
                 break;
             case "D":
-                players[data.id].velocity.x = 150;
+                players[data.id]['velocity']['x'] = 150;
                 players[data.id].animation = 'right';
                 data.velocity.x = 150;
                 data.animation = 'right';
@@ -49,6 +49,12 @@ io.on("connection", function(socket) { //при подключении ново�
         }
         io.sockets.emit('player_position_update', JSON.stringify(data));
     }); // движение
+
+    socket.on('sendPosition', function(data) {
+        data = JSON.parse(data);
+        players[data.id]["x"] = data["x"];
+        players[data.id].y = data.y;
+    });
 
     socket.on('disconnect', function() {
         console.log("an user disconnected " + socket.id);
